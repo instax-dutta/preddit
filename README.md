@@ -43,13 +43,32 @@ Preddit was born on a **Raspberry Pi 3 Model B (Rev 1.2)**. It is meticulously o
 
 ---
 
+## 🧭 Philosophy: Why not Libreddit or Redlib?
+
+Unlike other high-performance mirrors that aim for broad scale, Preddit is a **personal indexer**. 
+
+| Feature | Preddit | Others |
+|---|---|---|
+| **CPU Usage** | ⚡ Near Zero (Idle) | 🟠 Constant (Parsing) |
+| **Logic** | Disk-First (Indexed) | Real-time Proxy |
+| **Customization** | Per-Subreddit Fetch Control | Global Only |
+| **Hardware** | Optimized for Pi 3 / ARMv7 | Optimized for x86/Cloud |
+
+## 🗺️ Roadmap
+- [ ] **Multi-user support**: Separate config files for family/friends.
+- [ ] **Thread caching**: Save full HTML of text-heavy threads for offline reading.
+- [ ] **TUI Version**: A terminal-based UI for SSH-only access.
+- [ ] **Cloudflare Auto-Setup**: Built-in logic to assist with tunneling.
+
+---
+
 ## 🚀 Getting Started
 
 ### 1. Installation
 Preddit keeps dependencies to a bare minimum.
 
 ```bash
-git clone https://github.com/yourusername/preddit.git
+git clone https://github.com/instax-dutta/preddit.git
 cd preddit
 pip install -r requirements.txt
 ```
@@ -75,14 +94,16 @@ Open `http://localhost:9191` and breathe in the speed.
 
 ---
 
-## 📦 Deployment (The "Villa" Method)
+## 📦 Remote Deployment
 
-Preddit includes a built-in deployment script for remote Pi hosting. It sets up a `systemd` service so your mirror runs as a background daemon, surviving reboots and internet hiccups.
+Preddit includes a built-in deployment script for remote hosting (e.g. on a Raspberry Pi). It sets up a `systemd` service so your mirror runs as a background daemon, surviving reboots.
 
 ```bash
-# Update deploy.py with your credentials
+# Run the deployment wizard
 python deploy.py
 ```
+
+The script will prompt you for your credentials or you can set environment variables (`PREDDIT_HOST`, `PREDDIT_USER`, `PREDDIT_PASS`) to automate the process.
 
 ---
 

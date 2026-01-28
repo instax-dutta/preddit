@@ -1,13 +1,19 @@
 import paramiko
 from scp import SCPClient
 import os
+import sys
 
 def deploy():
-    host = "villa.local"
-    user = "villa"
-    password = "villa03"
-    remote_dir = "/home/villa/preddit"
+    # Load from environment or prompt user
+    host = os.getenv("PREDDIT_HOST") or input("Enter remote host (e.g. 192.168.1.10): ")
+    user = os.getenv("PREDDIT_USER") or input("Enter SSH username: ")
+    password = os.getenv("PREDDIT_PASS") or input("Enter SSH password: ")
+    remote_dir = os.getenv("PREDDIT_DIR") or f"/home/{user}/preddit"
     
+    if not host or not user or not password:
+        print("Error: Host, user, and password are required for deployment.")
+        sys.exit(1)
+
     print(f"Connecting to {host}...")
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -24,7 +30,7 @@ def deploy():
             print("Transferring files...")
             files_to_transfer = [
                 "config.yaml", "database.py", "fetcher.py", 
-                "server.py", "preddit.py", "README.md"
+                "server.py", "preddit.py", "README.md", "requirements.txt"
             ]
             for f in files_to_transfer:
                 if os.path.exists(f):
@@ -40,27 +46,32 @@ def deploy():
         print("Files transferred.")
         
         # Install dependencies on remote
-        print("Installing dependencies on remote...")
+        print("Checking remote dependencies...")
         ssh.exec_command("sudo apt-get update && sudo apt-get install -y python3-pip python3-yaml python3-requests python3-bs4 python3-flask")
         
+        # Cleanup cache
+        print("Cleaning remote cache...")
+        ssh.exec_command(f"find {remote_dir} -name '__pycache__' -exec rm -rf {{}} +")
+
         # Setup systemd
-        print("Setting up systemd service...")
+        print("Configuring systemd service...")
         commands = [
             f"sudo cp {remote_dir}/systemd/preddit.service /etc/systemd/system/",
             "sudo systemctl daemon-reload",
+            "sudo systemctl stop preddit",
+            "sudo pkill -f preddit.py || true",
             "sudo systemctl enable preddit",
-            "sudo systemctl restart preddit"
+            "sudo systemctl start preddit"
         ]
         for cmd in commands:
             stdin, stdout, stderr = ssh.exec_command(cmd, get_pty=True)
-            # Handle sudo password if prompted (though usually villa is in sudoers with nopass or we can try)
+            # Handle sudo password if prompted
             stdin.write(password + "\n")
             stdin.flush()
             print(f"Executed: {cmd}")
-            # print(stdout.read().decode())
 
         print("\nDeployment complete!")
-        print(f"Preddit is now running on port 9191 on {host}")
+        print(f"Preddit is now running on {host}")
         
     except Exception as e:
         print(f"Deployment failed: {e}")

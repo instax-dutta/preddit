@@ -4,111 +4,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>/r/{{ name }} - Preddit</title>
+    <title>/r/{{ name }} — Preddit</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     <style>
         :root {
-            --bg: #1a1a1b;
-            --text: #d7dadc;
-            --card-bg: #272729;
-            --accent: #ff4500;
-            --border: #343536;
+            --bg: #09090b;
+            --fg: #fafafa;
+            --card: #18181b;
+            --border: #27272a;
+            --muted: #a1a1aa;
+            --accent: #f97316;
+            --accent-soft: rgba(249, 115, 22, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg);
-            color: var(--text);
+            color: var(--fg);
             margin: 0;
-            padding: 20px;
-            line-height: 1.5;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.6;
         }
 
-        .container {
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        /* Layout */
+        .sidebar {
+            width: 280px;
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .main {
+            flex: 1;
+            padding: 40px;
             max-width: 900px;
             margin: 0 auto;
         }
 
-        .nav {
-            margin-bottom: 20px;
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 32px;
+            display: block;
         }
 
-        .nav a {
-            color: var(--accent);
-            text-decoration: none;
+        .back-link {
             font-size: 0.9rem;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 24px;
+        }
+
+        .back-link:hover {
+            color: var(--fg);
         }
 
         h1 {
-            margin: 10px 0 30px;
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin: 0 0 32px;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
+            padding-bottom: 16px;
         }
 
-        .thread {
-            background-color: var(--card-bg);
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card {
+            background-color: var(--card);
             border: 1px solid var(--border);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 4px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--muted);
         }
 
         .thread-title {
             font-size: 1.1rem;
-            font-weight: 500;
-            text-decoration: none;
-            color: var(--text);
+            font-weight: 600;
+            color: var(--fg);
             display: block;
+            margin-bottom: 8px;
         }
 
         .thread-title:hover {
-            color: #fff;
+            color: var(--accent);
         }
 
         .meta {
             font-size: 0.85rem;
-            color: #818384;
-            margin-top: 8px;
-        }
-
-        .meta a {
-            color: #818384;
-            text-decoration: none;
-        }
-
-        .meta a:hover {
-            text-decoration: underline;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .score {
             color: var(--accent);
-            font-weight: bold;
+            font-weight: 700;
+        }
+
+        .comment-link {
+            color: var(--muted);
+            border-bottom: 1px solid transparent;
+        }
+
+        .comment-link:hover {
+            color: var(--fg);
+            border-color: var(--muted);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .main {
+                padding: 24px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="nav">
-            <a href="/">← Back to Home</a>
-        </div>
+    <aside class="sidebar">
+        <a href="/" class="logo">🚀 Preddit</a>
+        <a href="/" class="back-link">← Home</a>
+    </aside>
 
+    <main class="main">
         <h1>/r/{{ name }}</h1>
 
         {% if not threads %}
-        <p>No threads fetched yet. Please wait for the periodic scraper.</p>
+        <p style="color: var(--muted)">No threads indexed yet. The fetcher is on the way.</p>
         {% endif %}
 
-        {% for thread in threads %}
-        <div class="thread">
-            <a href="{{ thread.url }}" class="thread-title" target="_blank">{{ thread.title }}</a>
-            <div class="meta">
-                <span class="score">{{ thread.score }}</span> points ·
-                by <strong>u/{{ thread.author }}</strong> ·
-                <a href="https://old.reddit.com{{ thread.comment_url }}" target="_blank">Comments</a>
-            </div>
+        <div class="feed">
+            {% for thread in threads %}
+            <article class="card">
+                <a href="{{ thread.url }}" class="thread-title" target="_blank">{{ thread.title }}</a>
+                <div class="meta">
+                    <span class="score">{{ thread.score }}</span>
+                    <span>by <strong>u/{{ thread.author }}</strong></span>
+                    <a href="https://old.reddit.com{{ thread.comment_url }}" class="comment-link"
+                        target="_blank">Comments</a>
+                </div>
+            </article>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
+    </main>
 </body>
 
 </html>

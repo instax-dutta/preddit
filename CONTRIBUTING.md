@@ -25,7 +25,7 @@ First off, thank you for considering contributing to Preddit! It's people like y
 
 ## Development Setup
 ```bash
-git clone https://github.com/yourusername/preddit.git
+git clone https://github.com/instax-dutta/preddit.git
 cd preddit
 python -m venv .venv
 source .venv/bin/activate  # Or .venv\Scripts\activate on Windows

@@ -3,6 +3,7 @@ from database import Database
 import yaml
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # Load config for subreddit list
 with open("config.yaml", "r") as f:

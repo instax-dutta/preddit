@@ -1,75 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preddit - Lightweight Reader</title>
+    <title>Preddit — Fast, Private, Minimalist</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     <style>
         :root {
-            --bg: #1a1a1b;
-            --text: #d7dadc;
-            --card-bg: #272729;
-            --accent: #ff4500;
-            --border: #343536;
+            --bg: #09090b;
+            --fg: #fafafa;
+            --card: #18181b;
+            --border: #27272a;
+            --muted: #a1a1aa;
+            --accent: #f97316;
+            --accent-soft: rgba(249, 115, 22, 0.1);
         }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg);
-            color: var(--text);
+            color: var(--fg);
             margin: 0;
-            padding: 20px;
-            line-height: 1.5;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.6;
         }
-        .container {
-            max-width: 800px;
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: standard;
+        }
+
+        Standard {
+            transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+        }
+
+        /* Layout */
+        .sidebar {
+            width: 280px;
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .main {
+            flex: 1;
+            max-width: 900px;
+            padding: 40px;
             margin: 0 auto;
         }
-        h1 { color: var(--accent); margin-bottom: 30px; }
-        .sub-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 40px;
+
+        /* Branding */
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 32px;
         }
-        .sub-link {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 15px;
-            text-align: center;
-            text-decoration: none;
-            color: var(--text);
+
+        /* Nav */
+        .section-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            margin: 24px 0 12px;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px 12px;
             border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .nav-link:hover {
+            background-color: var(--card);
+            color: var(--accent);
+        }
+
+        /* Content */
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin: 0 0 32px;
+        }
+
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
             transition: border-color 0.2s;
         }
-        .sub-link:hover { border-color: var(--accent); }
-        .recent-section h2 { font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .thread-item { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-        .thread-item a { color: var(--text); text-decoration: none; font-weight: bold; }
-        .thread-item a:hover { color: var(--accent); }
-        .meta { font-size: 0.8rem; color: #818384; margin-top: 4px; }
+
+        .card:hover {
+            border-color: var(--muted);
+        }
+
+        .thread-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--fg);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .thread-title:hover {
+            color: var(--accent);
+        }
+
+        .meta {
+            font-size: 0.85rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge {
+            background-color: var(--accent-soft);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .main {
+                padding: 24px;
+            }
+        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Preddit</h1>
-        
-        <div class="sub-list">
-            {% for sub in subreddits %}
-            <a href="/r/{{ sub.name }}" class="sub-link">/r/{{ sub.name }}</a>
-            {% endfor %}
-        </div>
 
-        <div class="recent-section">
-            <h2>Recently Fetched</h2>
+<body>
+    <aside class="sidebar">
+        <div class="logo">🚀 Preddit</div>
+
+        <div class="section-label">Subreddits</div>
+        <nav>
+            {% for sub in subreddits %}
+            <a href="/r/{{ sub.name }}" class="nav-link">/r/{{ sub.name }}</a>
+            {% endfor %}
+        </nav>
+
+        <div class="section-label">External</div>
+        <a href="https://github.com/instax-dutta/preddit" class="nav-link" target="_blank">GitHub Repo</a>
+    </aside>
+
+    <main class="main">
+        <h1>Recently Fetched</h1>
+
+        <div class="feed">
             {% for thread in recent %}
-            <div class="thread-item">
-                <a href="{{ thread.url }}" target="_blank">{{ thread.title }}</a>
+            <article class="card">
+                <a href="{{ thread.url }}" class="thread-title" target="_blank">{{ thread.title }}</a>
                 <div class="meta">
-                    {{ thread.score }} points · by u/{{ thread.author }} · from /r/{{ thread.subreddit }}
+                    <span class="badge">{{ thread.score }}</span>
+                    <span>u/{{ thread.author }}</span>
+                    <span>/r/{{ thread.subreddit }}</span>
                 </div>
-            </div>
+            </article>
             {% endfor %}
         </div>
-    </div>
+    </main>
 </body>
+
 </html>
