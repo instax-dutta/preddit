@@ -1,0 +1,14 @@
+[Unit]
+Description=Preddit Reader - Web Server
+After=network.target
+
+[Service]
+Type=simple
+User=villa
+WorkingDirectory=/home/villa/preddit
+ExecStart=/usr/bin/python3 preddit.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

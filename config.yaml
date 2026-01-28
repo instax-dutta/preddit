@@ -1,0 +1,298 @@
+subreddits:
+
+  # =========================
+  # Jobs / Hiring / Freelance
+  # =========================
+  - name: jobs
+    sort: new
+    fetch_every: 30m
+
+  - name: forhire
+    sort: new
+    fetch_every: 30m
+
+  - name: hiring
+    sort: new
+    fetch_every: 30m
+
+  - name: remotework
+    sort: new
+    fetch_every: 30m
+
+  - name: remotejobs
+    sort: new
+    fetch_every: 30m
+
+  - name: cscareerquestions
+    sort: new
+    fetch_every: 1h
+
+  - name: cscareerquestionsIN
+    sort: new
+    fetch_every: 1h
+
+  - name: experienceddevs
+    sort: new
+    fetch_every: 1h
+
+  - name: devjobs
+    sort: new
+    fetch_every: 30m
+
+  - name: techjobs
+    sort: new
+    fetch_every: 30m
+
+  - name: freelancing
+    sort: new
+    fetch_every: 1h
+
+  - name: freelance
+    sort: new
+    fetch_every: 1h
+
+  - name: startupsjobs
+    sort: new
+    fetch_every: 30m
+
+
+  # =========================
+  # AI / ML / Data (High Churn)
+  # =========================
+  - name: artificial
+    sort: new
+    fetch_every: 1h
+
+  - name: machinelearning
+    sort: new
+    fetch_every: 1h
+
+  - name: deeplearning
+    sort: new
+    fetch_every: 1h
+
+  - name: learnmachinelearning
+    sort: new
+    fetch_every: 3h
+
+  - name: datascience
+    sort: new
+    fetch_every: 3h
+
+  - name: learnprogramming
+    sort: new
+    fetch_every: 3h
+
+  - name: mlops
+    sort: new
+    fetch_every: 1h
+
+  - name: localLLaMA
+    sort: new
+    fetch_every: 1h
+
+  - name: openai
+    sort: new
+    fetch_every: 1h
+
+  - name: aiagents
+    sort: new
+    fetch_every: 1h
+
+
+  # =========================
+  # Programming / Systems
+  # =========================
+  - name: linux
+    sort: new
+    fetch_every: 3h
+
+  - name: selfhosted
+    sort: new
+    fetch_every: 3h
+
+  - name: homelab
+    sort: new
+    fetch_every: 3h
+
+  - name: opensource
+    sort: new
+    fetch_every: 3h
+
+  - name: programming
+    sort: new
+    fetch_every: 3h
+
+  - name: computerscience
+    sort: new
+    fetch_every: 6h
+
+  - name: coding
+    sort: new
+    fetch_every: 3h
+
+  - name: webdev
+    sort: new
+    fetch_every: 3h
+
+  - name: devops
+    sort: new
+    fetch_every: 3h
+
+  - name: sysadmin
+    sort: new
+    fetch_every: 3h
+
+  - name: networking
+    sort: new
+    fetch_every: 6h
+
+
+  # =========================
+  # Startups / Indie Builders
+  # =========================
+  - name: startups
+    sort: new
+    fetch_every: 1h
+
+  - name: entrepreneur
+    sort: new
+    fetch_every: 3h
+
+  - name: indiehackers
+    sort: new
+    fetch_every: 1h
+
+  - name: solopreneur
+    sort: new
+    fetch_every: 3h
+
+  - name: SaaS
+    sort: new
+    fetch_every: 1h
+
+  - name: sideproject
+    sort: new
+    fetch_every: 3h
+
+  - name: sideprojects
+    sort: new
+    fetch_every: 3h
+
+  - name: buildinpublic
+    sort: new
+    fetch_every: 1h
+
+
+  # =========================
+  # News / Tech Pulse
+  # =========================
+  - name: worldnews
+    sort: new
+    fetch_every: 3h
+
+  - name: technology
+    sort: new
+    fetch_every: 3h
+
+  - name: technews
+    sort: new
+    fetch_every: 3h
+
+  - name: science
+    sort: new
+    fetch_every: 6h
+
+  - name: space
+    sort: new
+    fetch_every: 6h
+
+  - name: futurology
+    sort: new
+    fetch_every: 6h
+
+  - name: cybersecurity
+    sort: new
+    fetch_every: 3h
+
+  - name: privacy
+    sort: new
+    fetch_every: 6h
+
+
+  # =========================
+  # Learning / Visual / Light
+  # =========================
+  - name: dataisbeautiful
+    sort: new
+    fetch_every: 6h
+
+  - name: datasets
+    sort: new
+    fetch_every: 12h
+
+  - name: explainlikeimfive
+    sort: new
+    fetch_every: 6h
+
+  - name: todayilearned
+    sort: new
+    fetch_every: 6h
+
+  - name: coolguides
+    sort: new
+    fetch_every: 12h
+
+  - name: educationalgifs
+    sort: new
+    fetch_every: 12h
+
+  - name: internetisbeautiful
+    sort: new
+    fetch_every: 12h
+
+
+  # =========================
+  # Human / Thinking / Slow
+  # =========================
+  - name: philosophy
+    sort: new
+    fetch_every: 12h
+
+  - name: askphilosophy
+    sort: new
+    fetch_every: 12h
+
+  - name: psychology
+    sort: new
+    fetch_every: 12h
+
+  - name: history
+    sort: new
+    fetch_every: 24h
+
+  - name: economics
+    sort: new
+    fetch_every: 12h
+
+  - name: sociology
+    sort: new
+    fetch_every: 24h
+
+  - name: singularity
+    sort: new
+    fetch_every: 6h
+
+storage:
+  db_path: "preddit.db"
+  retention_days: 30
+
+fetcher:
+  interval_seconds: 60
+  request_delay_min: 5
+  request_delay_max: 10
+  user_agent: "Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/Preddit/1.0"
+
+server:
+  host: "0.0.0.0"
+  port: 9191
