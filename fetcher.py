@@ -16,7 +16,32 @@ class PredditFetcher:
         self.delay_min = self.config['fetcher']['request_delay_min']
         self.delay_max = self.config['fetcher']['request_delay_max']
 
-    def fetch_subreddit(self, name, sort="new"):
+    def fetch_thread_content(self, comment_url):
+        if not comment_url: return None
+        url = comment_url
+        if not url.startswith('http'):
+            url = f"https://old.reddit.com{url}"
+        
+        headers = {'User-Agent': self.ua}
+        try:
+            # We don't want to wait too long or fetch too much
+            response = requests.get(url, headers=headers, timeout=10)
+            if response.status_code != 200: return None
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            # The actual post content in old reddit
+            content_div = soup.select_one('div.entry div.usertext-body div.md')
+            if content_div:
+                # Remove any images or media to keep it lightweight
+                for img in content_div.find_all(['img', 'iframe', 'video']):
+                    img.decompose()
+                return str(content_div) # Keep HTML for formatting (links, bold, etc)
+            return None
+        except Exception as e:
+            print(f"Error fetching thread content: {e}")
+            return None
+
+    def fetch_subreddit(self, name, sort="new", min_score=0):
         url = f"https://old.reddit.com/r/{name}/{sort}"
         headers = {'User-Agent': self.ua}
         
@@ -30,7 +55,7 @@ class PredditFetcher:
             
             # Find all thread entries
             entries = soup.select('div.thing')
-            for entry in entries:
+            for i, entry in enumerate(entries):
                 try:
                     # Basic metadata extraction
                     reddit_id = entry.get('data-fullname')
@@ -48,18 +73,30 @@ class PredditFetcher:
                         try: score = int(score_elem.get('title'))
                         except: pass
                     
+                    # QUALITY GATE
+                    if score < min_score:
+                        continue
+                    
                     author = entry.get('data-author', 'unknown')
                     
-                    # Timestamp extraction (using data-time or similar)
+                    # Timestamp extraction
                     time_elem = entry.select_one('time.live-timestamp')
                     timestamp = int(time.time()) # fallback
-                    if time_elem:
-                        # old.reddit stores UTC ISO in datetime attribute
-                        # though logic requires int, we can parse or use raw
-                        pass 
-
+                    
                     comment_elem = entry.select_one('a.comments')
                     comment_url = comment_elem.get('href') if comment_elem else ""
+
+                    # Fetch content for top N threads to keep it lightweight
+                    content = None
+                    if i < 5: # Limit content fetching to top 5 threads
+                        # CHECK: Do we already have this content?
+                        if self.db.is_thread_fetched(reddit_id):
+                            # print(f"Skipping content for {reddit_id} (already fetched)")
+                            pass
+                        else:
+                            content = self.fetch_thread_content(comment_url)
+                            if content:
+                                time.sleep(random.uniform(1, 2)) # Be kind to Reddit
 
                     threads.append({
                         'reddit_id': reddit_id,
@@ -69,7 +106,8 @@ class PredditFetcher:
                         'score': score,
                         'author': author,
                         'timestamp': timestamp,
-                        'comment_url': comment_url
+                        'comment_url': comment_url,
+                        'content': content
                     })
                 except Exception as e:
                     print(f"Error parsing entry: {e}")
@@ -122,7 +160,7 @@ class PredditFetcher:
                     # print(f"Skipping /r/{name} (Last fetch: {last_fetch}, Next in {int(interval_sec - elapsed)}s)")
                     continue
 
-            self.fetch_subreddit(name, sub.get('sort', 'new'))
+            self.fetch_subreddit(name, sub.get('sort', 'new'), sub.get('min_score', 0))
             
             # Rate limiting jitter between actual fetches
             sleep_time = random.uniform(self.delay_min, self.delay_max)

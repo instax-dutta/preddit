@@ -1,15 +1,24 @@
 subreddits:
-
   # =========================
   # Jobs / Hiring / Freelance
   # =========================
   - name: jobs
     sort: new
     fetch_every: 30m
+    min_score: 5 # Quality Gate: Ignore posts with score < 5
 
   - name: forhire
     sort: new
     fetch_every: 30m
+
+# =========================
+# Smart Watchlist (Radar)
+# =========================
+watchlist:
+  - "Remote"
+  - "Hiring"
+  - "Release"
+  - "Python"
 
   - name: hiring
     sort: new

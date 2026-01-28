@@ -24,9 +24,15 @@ class Database:
                     author TEXT,
                     timestamp INTEGER,
                     comment_url TEXT,
+                    content TEXT,
                     fetch_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
+            # Migration: Add content column if it doesn't exist
+            try:
+                cursor.execute('ALTER TABLE threads ADD COLUMN content TEXT')
+            except sqlite3.OperationalError:
+                pass # Already exists
             # Fetch log: Tracks scraping attempts
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS fetch_log (
@@ -49,12 +55,12 @@ class Database:
                 try:
                     cursor.execute('''
                         INSERT OR IGNORE INTO threads (
-                            reddit_id, subreddit, title, url, score, author, timestamp, comment_url
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                            reddit_id, subreddit, title, url, score, author, timestamp, comment_url, content
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ''', (
                         thread['reddit_id'], thread['subreddit'], thread['title'], 
                         thread['url'], thread['score'], thread['author'], 
-                        thread['timestamp'], thread['comment_url']
+                        thread['timestamp'], thread['comment_url'], thread.get('content')
                     ))
                     if cursor.rowcount > 0:
                         saved_count += 1
@@ -103,6 +109,39 @@ class Database:
             # Convert to list of dicts for easier handling in templates
             columns = [column[0] for column in cursor.description]
             return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    def get_watchlist(self, keywords, days=1):
+        """Finds threads matching keywords from the last N days."""
+        if not keywords: return []
+        
+        cutoff = (datetime.now() - timedelta(days=days)).timestamp()
+        query = "SELECT * FROM threads WHERE timestamp > ? AND ("
+        conditions = []
+        params = [cutoff]
+        for _ in keywords:
+            conditions.append("title LIKE ?")
+        
+        query += " OR ".join(conditions) + ") ORDER BY score DESC LIMIT 20"
+        
+        # Add wildcards to keywords
+        search_terms = [f"%{k}%" for k in keywords]
+        params.extend(search_terms)
+        
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, params)
+            columns = [column[0] for column in cursor.description]
+            return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    def is_thread_fetched(self, reddit_id):
+        """Checks if a thread exists and has content already."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT content FROM threads WHERE reddit_id = ?', (reddit_id,))
+            row = cursor.fetchone()
+            if row and row[0]:
+                return True
+            return False
 
     def cleanup_old_threads(self, days=30):
         cutoff = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d %H:%M:%S')

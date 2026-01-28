@@ -150,6 +150,65 @@
             font-size: 0.75rem;
         }
 
+        /* Content Markdown Styling */
+        .thread-content {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 0.95rem;
+            color: var(--muted);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .thread-content p {
+            margin: 0 0 12px;
+        }
+
+        .thread-content a {
+            color: var(--accent);
+        }
+
+        details summary {
+            cursor: pointer;
+            list-style: none;
+            outline: none;
+        }
+
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .expand-btn {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 12px;
+            display: inline-block;
+        }
+
+        .expand-btn:hover {
+            color: var(--accent);
+        }
+
+        /* Radar Styling */
+        .radar-title {
+            font-size: 1.25rem;
+            color: #fbbf24;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radar-card {
+            border-color: rgba(251, 191, 36, 0.3);
+            background: rgba(251, 191, 36, 0.05);
+        }
+
+        .radar-card:hover {
+            border-color: #fbbf24;
+        }
+
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -186,6 +245,25 @@
     </aside>
 
     <main class="main">
+        {% if radar %}
+        <div class="radar-section">
+            <h2 class="radar-title">🔥 Radar Matches</h2>
+            <div class="feed">
+                {% for thread in radar %}
+                <article class="card radar-card">
+                    <a href="{{ thread.url }}" class="thread-title" target="_blank">{{ thread.title }}</a>
+                    <div class="meta">
+                        <span class="badge">{{ thread.score }}</span>
+                        <span>u/{{ thread.author }}</span>
+                        <span>/r/{{ thread.subreddit }}</span>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 32px 0;">
+        {% endif %}
+
         <h1>Recently Fetched</h1>
 
         <div class="feed">
@@ -197,6 +275,15 @@
                     <span>u/{{ thread.author }}</span>
                     <span>/r/{{ thread.subreddit }}</span>
                 </div>
+
+                {% if thread.content %}
+                <details>
+                    <summary><span class="expand-btn">View Content ↓</span></summary>
+                    <div class="thread-content">
+                        {{ thread.content | safe }}
+                    </div>
+                </details>
+                {% endif %}
             </article>
             {% endfor %}
         </div>

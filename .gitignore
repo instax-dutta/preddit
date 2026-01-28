@@ -29,5 +29,6 @@ preddit.db
 fetch_log.json
 *.log
 config.local.yaml
+config.yaml
 .agent
 docs

@@ -14,9 +14,16 @@ db = Database(config['storage']['db_path'])
 @app.route('/')
 def index():
     subreddits = config['subreddits']
-    # Get latest 10 threads across all subreddits for context
+    # Get latest 10 threads for context
     recent_threads = db.get_threads(limit=10)
-    return render_template('index.html', subreddits=subreddits, recent=recent_threads)
+    
+    # Radar Logic
+    radar_threads = []
+    watchlist_keywords = config.get('watchlist', [])
+    if watchlist_keywords:
+        radar_threads = db.get_watchlist(watchlist_keywords)
+
+    return render_template('index.html', subreddits=subreddits, recent=recent_threads, radar=radar_threads)
 
 @app.route('/r/<name>')
 def subreddit_view(name):
@@ -26,7 +33,7 @@ def subreddit_view(name):
         abort(404)
         
     threads = db.get_threads(subreddit=name, limit=50)
-    return render_template('subreddit.html', name=name, threads=threads)
+    return render_template('subreddit.html', name=name, threads=threads, subreddits=config['subreddits'])
 
 if __name__ == '__main__':
     host = config['server'].get('host', '0.0.0.0')

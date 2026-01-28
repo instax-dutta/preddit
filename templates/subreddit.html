@@ -39,7 +39,6 @@
             transition: color 0.2s, border-color 0.2s;
         }
 
-        /* Layout */
         .sidebar {
             width: 280px;
             border-right: 1px solid var(--border);
@@ -52,8 +51,8 @@
 
         .main {
             flex: 1;
-            padding: 40px;
             max-width: 900px;
+            padding: 40px;
             margin: 0 auto;
         }
 
@@ -62,7 +61,9 @@
             font-weight: 800;
             color: var(--accent);
             margin-bottom: 32px;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .back-link {
@@ -74,6 +75,31 @@
 
         .back-link:hover {
             color: var(--fg);
+        }
+
+        /* Nav */
+        .section-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            margin: 24px 0 12px;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: var(--card);
+            color: var(--accent);
         }
 
         h1 {
@@ -137,6 +163,53 @@
             border-color: var(--muted);
         }
 
+        /* Content Markdown Styling */
+        .thread-content {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 0.95rem;
+            color: var(--muted);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .thread-content p {
+            margin: 0 0 12px;
+        }
+
+        .thread-content a {
+            color: var(--accent);
+        }
+
+        .thread-content blockquote {
+            border-left: 3px solid var(--accent);
+            padding-left: 12px;
+            margin: 12px 0;
+            color: var(--muted);
+        }
+
+        details summary {
+            cursor: pointer;
+            list-style: none;
+            outline: none;
+        }
+
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .expand-btn {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 12px;
+            display: inline-block;
+        }
+
+        .expand-btn:hover {
+            color: var(--accent);
+        }
+
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -160,7 +233,17 @@
 <body>
     <aside class="sidebar">
         <a href="/" class="logo">🚀 Preddit</a>
-        <a href="/" class="back-link">← Home</a>
+
+        <div class="section-label">Navigation</div>
+        <a href="/" class="nav-link">← Home</a>
+
+        <div class="section-label">Subreddits</div>
+        <nav>
+            {% for sub in subreddits %}
+            <a href="/r/{{ sub.name }}" class="nav-link {% if sub.name == name %}active{% endif %}">/r/{{ sub.name
+                }}</a>
+            {% endfor %}
+        </nav>
     </aside>
 
     <main class="main">
@@ -180,6 +263,15 @@
                     <a href="https://old.reddit.com{{ thread.comment_url }}" class="comment-link"
                         target="_blank">Comments</a>
                 </div>
+
+                {% if thread.content %}
+                <details>
+                    <summary><span class="expand-btn">View Content ↓</span></summary>
+                    <div class="thread-content">
+                        {{ thread.content | safe }}
+                    </div>
+                </details>
+                {% endif %}
             </article>
             {% endfor %}
         </div>
