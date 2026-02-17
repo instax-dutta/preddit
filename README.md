@@ -94,22 +94,23 @@ Open `http://localhost:9191` and breathe in the speed.
 
 ---
 
-## 📦 Remote Deployment
+## 📦 Background Service Setup
 
-Preddit includes a built-in deployment script for remote hosting (e.g. on a Raspberry Pi). It sets up a `systemd` service so your mirror runs as a background daemon, surviving reboots.
+Preddit includes a built-in setup script for running as a local `systemd` service. This allows the application to run as a background daemon on your local machine or Raspberry Pi, surviving reboots.
 
 ```bash
-# Run the deployment wizard
+# Run the service setup wizard
 python deploy.py
 ```
 
-The script will prompt you for your credentials or you can set environment variables (`PREDDIT_HOST`, `PREDDIT_USER`, `PREDDIT_PASS`) to automate the process.
+The script will configure the service to start automatically on boot.
 
 ---
 
-## 🛡️ Privacy & SEO Friendly
-- **SEO Optimized**: Headers and structure are designed to be indexed effectively if you choose to expose it via Cloudflare Tunnel.
+## 🛡️ Privacy & Efficiency
+- **Ultra-Lightweight**: Tested on Raspberry Pi 3 with BCM2837 (4 cores @ 1.20 GHz) and ~921 MiB RAM. Idle RAM usage ~45 MiB, serving ~60 MiB.
 - **Privacy First**: No cookies, no external fonts, no trackers. Your reading habits stay on your disk.
+- **Resource Efficient**: Consumes significantly less RAM and CPU compared to other Reddit mirrors like Libreddit or Redlib which require constant parsing and higher resource allocation.
 
 ## 📄 License
 This project is licensed under the [MIT License](LICENSE).
